@@ -1,25 +1,23 @@
 ---
 name: grill-me
-description: "Use this skill when a Use Case description document exists and the team needs to interrogate it before writing a PRD. Triggers: user shares a UC document (via KG or direct input) and says 'grill me', 'stress-test this UC', 'start the grill-me session', or 'what are we missing'. This skill conducts a structured interrogation that surfaces regulatory gaps, unresolved decisions, and KG coverage gaps — and produces the decisions checklist that gates PRD writing. Do NOT use during PRD writing, solution design, or implementation."
+description: "Use this skill when a Use Case document exists and the team needs to interrogate it before writing a PRD. Triggers: user shares a UC document and says 'grill me', 'stress-test this UC', 'start the grill-me session', or 'what are we missing'. This skill conducts a structured interrogation that surfaces regulatory gaps, unresolved decisions, and KG coverage gaps — and produces the decisions checklist that gates PRD writing. Do NOT use during PRD writing, solution design, or implementation."
 ---
 
 # Grill me — UC interrogation with KG context
 
 ## Purpose
 
-Interrogate a Use Case document relentlessly until every decision is resolved and every regulatory gap is surfaced. No PRD or code is written during this session. The output is a decisions checklist that gates PRD entry, plus KG gap note drafts categorised by which downstream phase they block.
+Interrogate a Use Case document relentlessly until every decision is resolved and every regulatory gap is surfaced. No PRD is written during this session. The output is a decisions checklist that gates PRD entry, plus KG gap note drafts categorised by which downstream phase they block.
 
 The tech lead is in the hot seat. The KG sharpens the questions — it does not replace the interrogation.
 
 ## Inputs required before starting
 
-- Use Case document (uploaded, pasted, or given from knowledge graph)
+- Use Case document (uploaded or pasted)
 - Document KG accessible via MCP (query regulatory nodes, existing scenarios, incident post-mortems)
 - Code graph via MCP if available (structural reach — which components does this UC touch)
 
-If the Code graph is unavailable, proceed with Document KG only.
-- If relevant architecture notes found in the documetn KG, fetch them then double check in the codebase using semantic search if available, esle use traditional search
-- Else, flag that blast radius cannot be confirmed until Solution Detailed Design.
+If the Code graph is unavailable, proceed with Document KG only. Flag that blast radius cannot be confirmed until Solution Detailed Design.
 
 ## Process
 

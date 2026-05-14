@@ -3,6 +3,8 @@ name: preflight-check
 description: "Use this skill when a GitLab issue is about to enter implementation and needs a code graph pre-flight check. Triggers: user says 'preflight', 'pre-flight check', 'check this issue before we start', or when an issue moves from Kanban 'Ready' to 'In Progress'. The issue body (with blast radius and routing label) must be present. Do NOT skip this step even for AFK-labelled issues — routing labels from decomposition are based on the state at decomposition time, not current state."
 ---
 
+> **GitLab MCP tools used by this skill:** `gitlab_get_issue` (read issue body), `gitlab_update_issue` (relabel if routing changes), `gitlab_create_issue_note` (log the preflight result)
+
 # Preflight check — code graph pre-flight before implementation
 
 ## Purpose
@@ -98,7 +100,7 @@ Previous label: HITL | AFK
 Label update required: YES | NO
 ```
 
-If the label changes (AFK → HITL or HITL → AFK), update the GitLab issue label.
+If the label changes (AFK → HITL or HITL → AFK), call `gitlab_update_issue` with the corrected `labels` value, then call `gitlab_create_issue_note` with the full preflight result block as the note body so the routing change is traceable.
 
 ### Step 6 — Scope Copilot context (AFK issues only)
 

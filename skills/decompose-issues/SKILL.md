@@ -3,6 +3,9 @@ name: decompose-issues
 description: "Use this skill when committed Gherkin scenarios and a Solution Detailed Design both exist and the work needs to be decomposed into GitLab issues. Triggers: user says 'decompose issues', 'to-issues', 'create the issues', 'break this into tickets', or 'issue decomposition'. Scenarios must be committed as failing tests before this skill runs. Do NOT decompose before Gherkin scenarios are committed — the scenarios are the unit of work."
 ---
 
+> **GitLab MCP tools used by this skill:** `gitlab_create_issue`, `gitlab_link_issues`
+> **Update tools:** `gitlab_update_issue`, `gitlab_create_issue_note`, `gitlab_delete_issue`, `gitlab_link_issues`
+
 # Decompose issues — coupling-aware dependency DAG for GitLab
 
 ## Purpose
@@ -17,6 +20,7 @@ This is supervised AFK: the agent drafts, the tech lead validates the DAG before
 - PRD (GitLab issue URL or content) — for shape constraints and scope reference
 - Solution Detailed Design — for impact list (components in scope)
 - Code graph accessible via MCP (blast radius queries, component dependency lookup)
+- **GitLab project path** — ask the user at the start: "Which GitLab project should I create issues in? (e.g. `group/project`)"
 
 If code graph is unavailable, proceed with Solution Detailed Design impact list only. Flag that blast radius is unconfirmed and all issues will be labelled `needs-preflight`.
 
@@ -152,15 +156,59 @@ Ask: "Does this DAG reflect how you'd sequence the work? Are there dependencies 
 
 Do not create GitLab issues until the tech lead confirms the DAG.
 
-### Step 8 — Create GitLab issues
+### Step 8 — Create GitLab issues via MCP
 
-After tech lead confirmation, create issues in GitLab:
-- Title: `[<UC-ID>] <issue summary>`
-- Labels: `type::implementation`, `routing::HITL` or `routing::AFK`, `uc::<UC-ID>`
-- Body: the full template from Step 6
-- Blocked-by links: set using GitLab's blocking issue relationship
+After tech lead confirmation, execute the following sequence using the GitLab MCP tools.
 
-Confirm the created issue URLs and the Kanban board link to the tech lead.
+**8a — Create all issues first (no links yet):**
+
+For each issue in the DAG, call `gitlab_create_issue`:
+```
+project_id: <project path confirmed at session start>
+title: "[<UC-ID>] <issue summary>"
+description: <full body template from Step 6>
+labels: "type::implementation,routing::HITL,uc::<UC-ID>"
+         or "type::implementation,routing::AFK,uc::<UC-ID>"
+         or "type::implementation,routing::AFK,needs-preflight,uc::<UC-ID>"
+```
+
+Record each returned `iid` and `web_url` — these are needed for Step 8b.
+
+**8b — Wire the DAG dependencies:**
+
+For every "A blocks B" edge in the DAG, call `gitlab_link_issues`:
+```
+project_id: <project path>
+issue_iid: <iid of A>
+target_project_id: <project path>
+target_issue_iid: <iid of B>
+link_type: "blocks"
+```
+
+**8c — Confirm to tech lead:**
+
+Present a summary table:
+
+| Issue | IID | URL | Routing | Blocks |
+|-------|-----|-----|---------|--------|
+| [UC-ID] Title | #N | url | HITL/AFK | #M, #P |
+
+State the parallel-start set (issues with no blockers, ready to pick up immediately).
+
+## Updating issues after creation
+
+When the user flags an issue as not qualified, use the following tools in order:
+
+**Body or label corrections** — call `gitlab_update_issue` with the changed fields, then immediately call `gitlab_create_issue_note` with a note explaining what changed and why:
+```
+body: "**Updated by decompose-issues review**\n\nChanged: <field>\nReason: <why it was wrong>\nNew value: <summary of new content>"
+```
+
+**Wrong dependency link** — GitLab does not support editing links. Delete the incorrect link via the GitLab UI (or API), then call `gitlab_link_issues` to create the correct one.
+
+**Issue is wrong or unnecessary** — call `gitlab_delete_issue` if the issue should not exist at all. Prefer `gitlab_close_issue` if the issue should be kept for audit history but not actioned.
+
+**Complete redo of an issue** — call `gitlab_update_issue` to replace title and description entirely, then `gitlab_create_issue_note` explaining the redo reason. Do not delete and recreate unless the IID needs to be freed.
 
 ## Hard constraints
 
@@ -170,3 +218,4 @@ Confirm the created issue URLs and the Kanban board link to the tech lead.
 - Do not invent dependencies to enforce sequencing preferences. Dependencies must be traceable to code graph overlap or logical scenario ordering.
 - If the code graph is unavailable, every issue gets `needs-preflight` label — no issue gets `AFK` until a human runs the pre-flight check manually.
 - The done signal is Cucumber scenario pass, not code merge. Make this explicit in every issue body.
+- Always call `gitlab_create_issue_note` after any `gitlab_update_issue` call — every change must be traceable.

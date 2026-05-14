@@ -3,6 +3,8 @@ name: to-prd
 description: "Use this skill when a Grill-me session is complete and a decisions checklist exists. Triggers: user says 'write the PRD', 'to-prd', 'produce the PRD', or 'turn this into a PRD'. The decisions checklist from Grill-me must be present in context or explicitly provided. Do NOT use without a completed decisions checklist — if one is missing, run the grill-me skill first."
 ---
 
+> **GitLab MCP tool used by this skill:** `gitlab_create_issue` (Step 5)
+
 # To PRD — compliance-aware product requirements document
 
 ## Purpose
@@ -93,15 +95,19 @@ Check:
 
 If any check fails, fix before publishing.
 
-### Step 5 — Publish to GitLab
+### Step 5 — Publish to GitLab via MCP
 
-Create a GitLab issue with:
-- Title: `PRD: <UC Title>`
-- Label: `type::prd`
-- Body: the full PRD markdown
-- Linked UC document reference in description
+Ask the user: "Which GitLab project should the PRD issue be created in? (e.g. `group/project`)"
 
-Confirm the issue URL to the user.
+Then call `gitlab_create_issue`:
+```
+project_id: <confirmed project path>
+title: "PRD: <UC Title>"
+description: <full PRD markdown from Step 3>
+labels: "type::prd"
+```
+
+Confirm the returned `web_url` to the user.
 
 ## Hard constraints
 
