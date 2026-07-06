@@ -14,13 +14,21 @@ A decision not captured here will be rediscovered, often incorrectly, by a futur
 ## Inputs required
 
 - Description of the human decision made (what was decided)
-- The HITL issue reference (GitLab issue URL)
+- The HITL issue reference (Jira issue key)
 - The regulatory context (which KG nodes were in play during pre-flight)
 - The alternative(s) considered and why they were rejected
 
 If the user cannot articulate the alternative(s) considered, ask before producing the note. A decision recorded without its rejected alternatives is half a decision — future agents will not know what was ruled out.
 
 ## Process
+
+### Step 0 — Establish the ticket identifier
+
+If a ticket identifier is not already established in the conversation context, ask the user before doing anything else:
+
+> "What ticket or identifier should I use for this session's output folder? (e.g. `epic-42`, `UC-014`, or a short slug — this becomes `docs/<ticket>/` in the repo)"
+
+Record the response as `<ticket>` and use it consistently for this session.
 
 ### Step 1 — Elicit the full decision record
 
@@ -46,7 +54,7 @@ tags: [decision, hitl, uc-reference/<UC-ID>, <regulatory-area-tag>]
 status: active
 kg-tier: 1
 related-nodes: [<KG node ID list>]
-issue-reference: <GitLab issue URL>
+issue-reference: <Jira issue key>
 date: <YYYY-MM-DD>
 expires-when: <condition or "indefinite">
 ---
@@ -79,7 +87,7 @@ Future UCs touching <component list> should consult this decision during Grill-m
 This decision applies until: <condition or "indefinite">.
 
 ## Issue reference
-[[gitlab-issue/<issue-number>]] — <issue title>
+[[jira-issue/<issue-key>]] — <issue title>
 ```
 
 ### Step 3 — Classify the node tier
@@ -106,7 +114,7 @@ Record the tier in the `kg-tier` frontmatter field. The Grill-me skill uses this
 The Obsidian pipeline uses wikilinks for relationship extraction. Before committing:
 
 - Link to related regulatory nodes using `[[node-ID]]` syntax
-- Link to the GitLab issue using `[[gitlab-issue/<number>]]`
+- Link to the Jira issue using `[[jira-issue/<issue-key>]]`
 - Link to any related existing decision notes using `[[decision/<title>]]`
 - If this decision supersedes a previous decision, link to it and mark the previous note as `status: superseded`
 

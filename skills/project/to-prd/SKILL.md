@@ -3,7 +3,8 @@ name: to-prd
 description: "Use this skill when a Grill-me session is complete and a decisions checklist exists. Triggers: user says 'write the PRD', 'to-prd', 'produce the PRD', or 'turn this into a PRD'. The decisions checklist from Grill-me must be present in context or explicitly provided. Do NOT use without a completed decisions checklist — if one is missing, run the grill-me skill first."
 ---
 
-> **GitLab MCP tool used by this skill:** `gitlab_create_issue` (Step 5)
+> **Jira MCP tool used by this skill:** `jira_create_issue` (Step 5)
+> **Output:** `docs/<ticket>/development/prd-draft.md` *(local copy before Jira publish)*
 
 # To PRD — compliance-aware product requirements document
 
@@ -78,8 +79,7 @@ Anti-patterns explicitly ruled out.
 Example: "Do not extend Oracle View V_INVOICE_LINES. Route through InvoiceService instead."
 
 ## Acceptance criteria
-Reference to Gherkin scenarios (to be generated in draft-gherkin step).
-Format: "Scenarios in <feature-file-name>.feature — generated from this PRD."
+Plain-language criteria for each behavior in the Behavior Specification above — these are what `decompose-issues` copies into each issue's own acceptance-criteria checklist. Do not reference Gherkin scenarios or feature files here: scenario generation is currently deprecated (test team not ready for automation integration), and the PRD must stand on its own without assuming it will exist.
 
 ## Known gaps and deferred decisions
 List any Grill-me gaps that are Tier 2–4 (not blocking PRD) with their tier and the phase they must be resolved before.
@@ -93,21 +93,21 @@ Check:
 - Out of Scope explicitly references at least one decision checklist item
 - No contradictions between Behavior Specification and KG regulatory nodes
 
-If any check fails, fix before publishing.
+If any check fails, fix before publishing. Save the validated draft to `docs/<ticket>/development/prd-draft.md` before proceeding to Step 5.
 
-### Step 5 — Publish to GitLab via MCP
+### Step 5 — Publish to Jira via MCP
 
-Ask the user: "Which GitLab project should the PRD issue be created in? (e.g. `group/project`)"
+Ask the user: "Which Jira project should the PRD issue be created in? (e.g. `PROJ`)"
 
-Then call `gitlab_create_issue`:
+Then call `jira_create_issue`:
 ```
-project_id: <confirmed project path>
 title: "PRD: <UC Title>"
 description: <full PRD markdown from Step 3>
-labels: "type::prd"
+issue_type: "Epic"
+labels: ["prd"]
 ```
 
-Confirm the returned `web_url` to the user.
+This issue becomes the parent epic that `decompose-issues` attaches implementation issues to via `parent_key`. Confirm the returned issue key to the user.
 
 ## Hard constraints
 

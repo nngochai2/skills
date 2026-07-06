@@ -3,6 +3,10 @@ name: grill-me
 description: "Use this skill when a Use Case document exists and the team needs to interrogate it before writing a PRD. Triggers: user shares a UC document and says 'grill me', 'stress-test this UC', 'start the grill-me session', or 'what are we missing'. This skill conducts a structured interrogation that surfaces regulatory gaps, unresolved decisions, and KG coverage gaps — and produces the decisions checklist that gates PRD writing. Do NOT use during PRD writing, solution design, or implementation."
 ---
 
+> **Outputs:**
+> - `docs/<ticket>/development/decisions-checklist.md`
+> - `docs/<ticket>/development/kg-gap-notes.md` *(draft only — committed to Obsidian manually)*
+
 # Grill me — UC interrogation with KG context
 
 ## Purpose
@@ -20,6 +24,14 @@ The tech lead is in the hot seat. The KG sharpens the questions — it does not 
 If the Code graph is unavailable, proceed with Document KG only. Flag that blast radius cannot be confirmed until Solution Detailed Design.
 
 ## Process
+
+### Step 0 — Establish the ticket identifier
+
+Ask the user before doing anything else:
+
+> "What ticket or identifier should I use for this session's output folder? (e.g. `epic-42`, `UC-014`, or a short slug — this becomes `docs/<ticket>/` in the repo)"
+
+Record the response as `<ticket>` and use it consistently in all output file paths for this session.
 
 ### Step 1 — KG orientation (do before asking any questions)
 
@@ -95,6 +107,8 @@ blocks: prd
 ## Suggested source
 <where to find this — regulation document, SME, existing code>
 ```
+
+**Saving outputs:** write the decisions checklist to `docs/<ticket>/development/decisions-checklist.md`. Save KG gap note drafts to `docs/<ticket>/development/kg-gap-notes.md` — these are drafts; commit to Obsidian manually after the session.
 
 ## Hard constraints
 

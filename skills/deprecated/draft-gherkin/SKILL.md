@@ -1,7 +1,13 @@
 ---
 name: draft-gherkin
-description: "Use this skill when a PRD and Solution Detailed Design both exist and Gherkin scenarios need to be generated. Triggers: user says 'draft gherkin', 'generate scenarios', 'write the feature files', or 'draft the tests'. Both PRD and Solution Detailed Design must be present. Do NOT generate scenarios from PRD alone — the Solution Detailed Design's impact list is required for accurate coverage."
+description: "DEPRECATED — do not invoke. Use this skill when a PRD and Solution Detailed Design both exist and Gherkin scenarios need to be generated. Triggers: user says 'draft gherkin', 'generate scenarios', 'write the feature files', or 'draft the tests'. Both PRD and Solution Detailed Design must be present. Do NOT generate scenarios from PRD alone — the Solution Detailed Design's impact list is required for accurate coverage."
 ---
+
+> **Deprecated:** the test team is not yet ready to consume committed Gherkin scenarios for automation. This skill is fully specified and works — it's blocked by an external dependency, not a design flaw. `decompose-issues` no longer requires its output; re-activate this skill (move it back to `skills/project/` and drop the `DEPRECATED` marker below) once the test team's automation pipeline is ready.
+>
+> **Outputs:**
+> - `docs/<ticket>/test/features/<functional-area>.feature`
+> - `docs/<ticket>/test/features/coverage-report.md`
 
 # Draft Gherkin — LLM-generated scenario drafts from UC + design + KG
 
@@ -18,6 +24,14 @@ A vague scenario is a failure. If a requirement cannot be made concrete and unam
 - Document KG accessible via MCP
 
 ## Process
+
+### Step 0 — Establish the ticket identifier
+
+If a ticket identifier is not already established in the conversation context, ask the user before doing anything else:
+
+> "What ticket or identifier should I use for this session's output folder? (e.g. `epic-42`, `UC-014`, or a short slug — this becomes `docs/<ticket>/` in the repo)"
+
+Record the response as `<ticket>` and use it consistently in all output file paths for this session.
 
 ### Step 1 — KG query (do before writing a single scenario)
 
@@ -100,6 +114,8 @@ Incident regression scenarios added: [list]
 
 **Tester handoff note:**
 List the areas where system knowledge is most likely needed — components with complex interactions, flows with known history, areas where the KG has sparse coverage. This is what the tester should focus their review on, not the entire scenario set.
+
+**Saving outputs:** save `.feature` files to `docs/<ticket>/test/features/<functional-area>.feature` and the coverage report to `docs/<ticket>/test/features/coverage-report.md`.
 
 ## Hard constraints
 

@@ -1,7 +1,13 @@
 ---
 name: review-gherkin
-description: "Use this skill when LLM-generated Gherkin scenario drafts exist and a tester needs to review them. Triggers: user says 'review gherkin', 'tester review', 'check the scenarios', or 'review the drafts'. The draft .feature file(s) and coverage report from draft-gherkin must be present. Do NOT use this skill to generate scenarios — use draft-gherkin for that."
+description: "DEPRECATED — do not invoke. Use this skill when LLM-generated Gherkin scenario drafts exist and a tester needs to review them. Triggers: user says 'review gherkin', 'tester review', 'check the scenarios', or 'review the drafts'. The draft .feature file(s) and coverage report from draft-gherkin must be present. Do NOT use this skill to generate scenarios — use draft-gherkin for that."
 ---
+
+> **Deprecated:** blocked on `draft-gherkin`, which is itself blocked on the test team's automation readiness — not a design flaw in either skill. Re-activate alongside `draft-gherkin` once that dependency clears.
+>
+> **Outputs:**
+> - `docs/<ticket>/test/features/<functional-area>.feature` *(reviewed, overwrites draft)*
+> - `docs/<ticket>/development/routing-batch.md`
 
 # Review Gherkin — tester review, judgment, and routing
 
@@ -23,6 +29,14 @@ Reviewing a draft is faster than writing from scratch. The LLM handles mechanica
 - Solution Detailed Design (for routing design-level ambiguities)
 
 ## Process
+
+### Step 0 — Establish the ticket identifier
+
+Ask the user before doing anything else:
+
+> "What ticket or identifier should I use for this session's output folder? (e.g. `epic-42`, `UC-014`, or a short slug — this becomes `docs/<ticket>/` in the repo)"
+
+Record the response as `<ticket>` and use it consistently in all output file paths for this session.
 
 ### Step 1 — Present the coverage report first, not the scenarios
 
@@ -111,6 +125,8 @@ If the tester identifies under-covered areas, generate additional scenarios to t
 **Routing batch:** all 🚩 Flag items formatted for sending to analyst (PRD route) or Developer + Analyst (Solution Design route). These are blockers on scenario commit.
 
 **Commit-ready confirmation:** once all flags are resolved and the tester confirms the scenario set is complete, the scenarios are ready to commit as failing tests. The tester's confirmation is the gate — not the LLM's judgment.
+
+**Saving outputs:** save reviewed `.feature` files to `docs/<ticket>/test/features/` (overwriting the `draft-gherkin` originals). Save the routing batch to `docs/<ticket>/development/routing-batch.md`.
 
 ## Hard constraints
 
