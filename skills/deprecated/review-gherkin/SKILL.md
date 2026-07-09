@@ -1,6 +1,7 @@
 ---
 name: review-gherkin
 description: "DEPRECATED — do not invoke. Use this skill when LLM-generated Gherkin scenario drafts exist and a tester needs to review them. Triggers: user says 'review gherkin', 'tester review', 'check the scenarios', or 'review the drafts'. The draft .feature file(s) and coverage report from draft-gherkin must be present. Do NOT use this skill to generate scenarios — use draft-gherkin for that."
+disable-model-invocation: true
 ---
 
 > **Deprecated:** blocked on `draft-gherkin`, which is itself blocked on the test team's automation readiness — not a design flaw in either skill. Re-activate alongside `draft-gherkin` once that dependency clears.

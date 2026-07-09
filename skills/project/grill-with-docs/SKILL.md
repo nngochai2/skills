@@ -1,6 +1,7 @@
 ---
 name: grill-with-docs
 description: "Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline as decisions crystallise. Use when user wants to stress-test a plan against their project's language and documented decisions — in a consuming project's codebase, or against this skills repo itself. Do NOT use for regulatory-scope interrogation of a Use Case document — that's grill-me's job; this skill is for stress-testing any plan against existing local documentation and code, regulatory or not."
+disable-model-invocation: true
 ---
 
 > **MCP tools used by this skill (all optional — degrade gracefully if unreachable):** Document KG (existing terminology, scenarios), codegraph (structural verification — dependencies, callers, blast radius, layering)

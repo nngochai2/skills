@@ -1,6 +1,7 @@
 ---
 name: draft-gherkin
 description: "DEPRECATED — do not invoke. Use this skill when a PRD and Solution Detailed Design both exist and Gherkin scenarios need to be generated. Triggers: user says 'draft gherkin', 'generate scenarios', 'write the feature files', or 'draft the tests'. Both PRD and Solution Detailed Design must be present. Do NOT generate scenarios from PRD alone — the Solution Detailed Design's impact list is required for accurate coverage."
+disable-model-invocation: true
 ---
 
 > **Deprecated:** the test team is not yet ready to consume committed Gherkin scenarios for automation. This skill is fully specified and works — it's blocked by an external dependency, not a design flaw. `decompose-issues` no longer requires its output; re-activate this skill (move it back to `skills/project/` and drop the `DEPRECATED` marker below) once the test team's automation pipeline is ready.

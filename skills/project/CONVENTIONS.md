@@ -23,9 +23,9 @@ Artifacts that do not land in `docs/` (they are published externally):
 
 | Artifact | Destination |
 |----------|-------------|
-| PRD issue | GitLab (published by `to-prd` via MCP) |
-| Implementation issues + DAG | GitLab (published by `decompose-issues` via MCP) |
-| Preflight result | GitLab issue note (written by `preflight-check` via MCP) |
+| PRD issue | Jira (published by `to-prd` via MCP, as an Epic) |
+| Implementation issues + DAG | Jira (published by `decompose-issues` via MCP, as Stories parented to the PRD Epic) |
+| Preflight result | Jira issue description, under a `## Preflight log` heading (written by `preflight-check` via MCP — no comment/note tool exists) |
 | KG gap notes, decision notes | Obsidian vault (committed manually after `grill-me` / `annotate-kg`) |
 
 ---
@@ -35,7 +35,7 @@ Artifacts that do not land in `docs/` (they are published externally):
 `<ticket>` is a short identifier that scopes all artifacts from a single Use Case implementation effort. It is free-form but should be stable across sessions.
 
 Preferred formats (in order):
-1. GitLab epic number or slug — `epic-42` or `42`
+1. Jira epic key or slug — `PROJ-42` or `epic-42`
 2. Use Case code — `UC-014`
 3. A short descriptive slug — `einvoicing-vat-recompute`
 

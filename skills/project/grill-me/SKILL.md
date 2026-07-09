@@ -1,6 +1,7 @@
 ---
 name: grill-me
 description: "Use this skill when a Use Case document exists and the team needs to interrogate it before writing a PRD. Triggers: user shares a UC document and says 'grill me', 'stress-test this UC', 'start the grill-me session', or 'what are we missing'. This skill conducts a structured interrogation that surfaces regulatory gaps, unresolved decisions, and KG coverage gaps — and produces the decisions checklist that gates PRD writing. Do NOT use during PRD writing, solution design, or implementation."
+disable-model-invocation: true
 ---
 
 > **Outputs:**

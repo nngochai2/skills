@@ -1,6 +1,7 @@
 ---
 name: decompose-issues
 description: "Use this skill when a PRD and a Solution Detailed Design both exist and the work needs to be decomposed into Jira issues. Triggers: user says 'decompose issues', 'to-issues', 'create the issues', 'break this into tickets', or 'issue decomposition'. Do NOT use this skill before both the PRD and Solution Detailed Design are available — it decomposes from those two documents directly, not from test artifacts."
+disable-model-invocation: true
 ---
 
 > **Jira MCP tools used by this skill:** `jira_create_issue`, `jira_link_issues`
@@ -51,6 +52,14 @@ Components (from Solution Design impact list): <list>
 
 Prefer many thin slices over few thick ones. This replaces scenario-based sizing — there is no Gherkin scenario to anchor to, so the slice boundary itself is the unit of work and deserves the same scrutiny a scenario boundary used to get.
 
+**Wide refactors are the exception to vertical slicing.** A wide refactor is one mechanical change — rename a shared column, retype a symbol used across the codebase — whose blast radius fans out across many components at once, so no vertical slice can land independently verifiable. Don't force it into a tracer-bullet slice. Sequence it as **expand → migrate → contract** instead, each stage its own issue in the DAG:
+
+1. **Expand** — add the new form alongside the old so nothing currently in production breaks. One issue, no blockers (or blocked only by whatever the new form depends on).
+2. **Migrate** — move call sites to the new form in batches sized by blast radius (per component or per module from the code graph query in Step 2), so each batch stays independently mergeable. One issue per batch, each blocked by Expand.
+3. **Contract** — delete the old form once the code graph confirms no caller remains. One issue, blocked by every Migrate batch.
+
+Record wide refactors in the slice inventory with `Kind: wide-refactor` instead of a Behavior Specification reference, since a refactor slice doesn't map to a PRD behavior — it maps to the Solution Design's stated technical decision.
+
 ### Step 2 — Query code graph for blast radius per slice
 
 For each slice:
@@ -84,6 +93,8 @@ For each slice, decide on issue granularity using this rubric:
 - All slices in the group share the same risk profile
 
 Never group slices from different regulatory areas into one issue. Compliance failures must be traceable to a single, bounded change.
+
+This granularity rubric does not apply to wide-refactor slices — each expand/migrate-batch/contract stage is already its own issue by construction (Step 1).
 
 ### Step 4 — Build the dependency DAG
 
@@ -227,6 +238,7 @@ Never overwrite this section — append to it.
 - Never group slices from different regulatory areas into one issue.
 - Never label an issue `AFK` when regulatory exposure is YES. This overrides all other signals.
 - Do not invent dependencies to enforce sequencing preferences. Dependencies must be traceable to code graph overlap or logical slice ordering.
+- Do not force a wide refactor into a single vertical-slice issue because it's mechanical. If a change's blast radius fans out across many components with no independently-verifiable slice, sequence it as expand → migrate → contract (Step 1), even though that costs more issues than the change conceptually needs.
 - If the code graph is unavailable, every issue gets `needs-preflight` label — no issue gets `AFK` until a human runs the pre-flight check manually.
 - Do not invent a "done signal" to replace the retired Cucumber-based one. Verifying acceptance criteria and closing the issue is a manual human judgment call, same as Pocock's original `to-issues` pattern — there is no automated substitute, and one should not be added without a concrete new verification mechanism to hook into.
 - Always append to the description's `## Change log` section after any `jira_update_issue` call — never overwrite prior history.

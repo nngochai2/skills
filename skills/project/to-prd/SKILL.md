@@ -1,6 +1,7 @@
 ---
 name: to-prd
 description: "Use this skill when a Grill-me session is complete and a decisions checklist exists. Triggers: user says 'write the PRD', 'to-prd', 'produce the PRD', or 'turn this into a PRD'. The decisions checklist from Grill-me must be present in context or explicitly provided. Do NOT use without a completed decisions checklist — if one is missing, run the grill-me skill first."
+disable-model-invocation: true
 ---
 
 > **Jira MCP tool used by this skill:** `jira_create_issue` (Step 5)

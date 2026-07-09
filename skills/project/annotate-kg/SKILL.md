@@ -1,6 +1,7 @@
 ---
 name: annotate-kg
 description: "Use this skill when a Human decision has been made during implementation (HITL routing) and the rationale needs to be captured in the Document KG. Triggers: user says 'annotate KG', 'log this decision', 'document why', 'add this to the KG', or after a HITL issue resolution is confirmed. Do NOT use for AFK issues — AFK implementation decisions are routine and do not require KG annotation unless they reveal something unexpected."
+disable-model-invocation: true
 ---
 
 # Annotate KG — capture human decisions as KG artefacts

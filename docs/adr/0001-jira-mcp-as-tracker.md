@@ -1,0 +1,5 @@
+# Jira MCP replaces GitLab as the tracker integration for project skills
+
+`to-prd`, `decompose-issues`, and `preflight-check` previously integrated with GitLab via MCP (`gitlab_create_issue`, `gitlab_update_issue`, `gitlab_create_issue_note`, etc. — see the current branch name, `feature/workflow-with-gitlab-mcp`). We're switching the whole pipeline to a Jira MCP server instead: the PRD is published as a Jira issue/epic, `decompose-issues` creates Jira subtasks/stories under it, and `preflight-check` reads/notes/relabels Jira issues.
+
+Reason: `decompose-issues` (the "to-issues" stage) is being adopted as the tracked milestone for measuring AI usage in the project stream — the team lead/PM need to review the resulting tasks against the PRD they came from. Jira is what they actually watch; splitting the tracker mid-pipeline (PRD on GitLab, issues on Jira) would break that traceability at the exact point it matters most. GitLab MCP is retired from this skillset as a result — not because GitLab is worse, but because keeping two tracker integrations alive for one pipeline isn't worth the maintenance cost.

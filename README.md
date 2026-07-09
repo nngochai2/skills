@@ -12,23 +12,27 @@ Skills (and agents) for the AI-assisted development lifecycle (ADLC). Organized 
 
 ## Provenance
 
-| Skill/Agent | Track | Source | Notes |
-|-------|-------|--------|-------|
-| `tdd` | project | Matt Pocock — use as-is | Red-green-refactor loop. No adaptation needed. |
-| `grill-me` | project | Adapted from Pocock's `grill-me` + `grill-with-docs` | Rewritten for KG-aware regulatory interrogation and Obsidian/Neo4j pipeline. |
-| `grill-with-docs` | project | Adapted from Pocock's `grill-with-docs` | Generic plan-vs-documentation stress-test, made KG-aware (degrades gracefully without one) and codegraph-aware (structural questions only — source reading still required for behavioral claims). Usable both in consuming project codebases and as a meta-tool for this repo. |
-| `to-prd` | project | Adapted from Pocock's `to-prd` | Adds mandatory shape constraints section, KG node references, Jira (not GitHub/GitLab) issue creation. |
-| `decompose-issues` | project | Adapted from Pocock's `to-issues` | Rewritten for coupling-aware dependency DAG, blast radius granularity, Jira (not GitHub/GitLab). No longer requires committed Gherkin scenarios — decomposes from PRD + Solution Design directly, using tracer-bullet vertical slices as the unit of work. Reverted to Pocock's plain acceptance-criteria checklist (no Cucumber-based done signal) since that formalism no longer has anything to attach to. This is the tracked milestone for measuring AI-assisted delivery in the project stream. |
-| `annotate-kg` | project | Net-new | No Pocock equivalent. HITL decision capture with tiered KG node classification and wikilink generation. References Jira issue keys, not GitLab. |
-| `preflight-check` | **agent**, project | Net-new | No Pocock equivalent. Code graph pre-flight with gateway rules for regulatory exposure and drift detection. Moved from a skill to an agent — it's rule-based and autonomous until the final routing decision, unlike the interactive skills above. Rewritten for Jira (no comment/note tool — routing changes are appended to the issue description under a `## Preflight log` heading instead). |
-| `draft-gherkin` | **deprecated** | Net-new | Compliance-specific scenario generation. Blocked: the test team isn't ready to consume committed Gherkin scenarios for automation. Fully specified, not a design flaw. |
-| `review-gherkin` | **deprecated** | Net-new | Tester-as-router pattern with ambiguity routing to PRD vs Solution Design. Blocked alongside `draft-gherkin`. |
-| `check-data` | support | Net-new | Verifies customer/transactional data against a ticket, via the Oracle MCP's read-only `execute_query`. |
-| `check-business-rules` | support | Net-new | Verifies expected behaviour against the Document KG and PL/SQL-encoded rules (Oracle `get_package_source`/`get_view_definition`) — business logic in this stack lives in both places. |
-| `check-code-history` | support | Net-new | Verifies actual code behaviour via codegraph (structural only) plus read-only Azure DevOps lookups for historical ticket context (e.g. old "TFS ..." references in code comments). |
-| `ticket-triage` | **agent**, support | Net-new | Orchestrates `check-data` → `check-business-rules` → `check-code-history` against a pasted ServiceDesk ticket (no ServiceDesk MCP exists) and produces a bug/not-a-bug verdict. No automatic writes anywhere — closing tickets and any follow-up stays manual. |
+**Invocation** follows Pocock's v1.1 user-invoked/model-invoked split (see `CLAUDE.md`): **User** = reachable only by typing the skill's name (`disable-model-invocation: true`), for skills that sit at a deliberate pipeline gate. **Model** = the agent can also reach for it autonomously, for skills that hold a reusable investigative/review discipline. **Agent** = the invocation-mode field doesn't apply; agents are autonomously reachable by design.
 
-Pocock's original skills (`grill-me`, `to-prd`, `to-issues`, `grill-with-docs`) are available at https://github.com/mattpocock/skills — MIT licensed. They assume GitHub, TypeScript, and greenfield projects. The adaptations here replace those assumptions with Jira, Java/Oracle/MuleSoft, and a legacy compliance codebase.
+| Skill/Agent | Track | Invocation | Source | Notes |
+|-------|-------|-------|--------|-------|
+| `grill-me` | project | User | Adapted from Pocock's `grill-me` + `grill-with-docs` | Rewritten for KG-aware regulatory interrogation and Obsidian/Neo4j pipeline. |
+| `grill-with-docs` | project | User | Adapted from Pocock's `grill-with-docs` | Generic plan-vs-documentation stress-test, made KG-aware (degrades gracefully without one) and codegraph-aware (structural questions only — source reading still required for behavioral claims). Usable both in consuming project codebases and as a meta-tool for this repo. |
+| `to-prd` | project | User | Adapted from Pocock's `to-prd` | Adds mandatory shape constraints section, KG node references, Jira (not GitHub/GitLab) issue creation. |
+| `decompose-issues` | project | User | Adapted from Pocock's `to-issues`/`to-tickets` | Rewritten for coupling-aware dependency DAG, blast radius granularity, Jira (not GitHub/GitLab). No longer requires committed Gherkin scenarios — decomposes from PRD + Solution Design directly, using tracer-bullet vertical slices as the unit of work. Reverted to Pocock's plain acceptance-criteria checklist (no Cucumber-based done signal) since that formalism no longer has anything to attach to. Ported the expand→migrate→contract sequencing for wide refactors from Pocock's v1.1 `to-tickets` as an exception to vertical slicing. This is the tracked milestone for measuring AI-assisted delivery in the project stream. |
+| `annotate-kg` | project | User | Net-new | No Pocock equivalent. HITL decision capture with tiered KG node classification and wikilink generation. References Jira issue keys, not GitLab. |
+| `preflight-check` | **agent**, project | Agent | Net-new | No Pocock equivalent. Code graph pre-flight with gateway rules for regulatory exposure and drift detection. Moved from a skill to an agent — it's rule-based and autonomous until the final routing decision, unlike the interactive skills above. Rewritten for Jira (no comment/note tool — routing changes are appended to the issue description under a `## Preflight log` heading instead). |
+| `code-review` | project | Model | Adapted from Pocock's v1.1 `code-review` | Two-axis (Standards + Fowler smell baseline / Spec) parallel-subagent diff review. Spec axis reads a Jira issue via `jira_get_issue` instead of a GitHub issue/PR; shape-constraint violations count as Spec findings since our `to-prd` bakes them into the PRD rather than a separate standards doc. Runs after implementation, before merge — distinct from `preflight-check`'s pre-implementation routing decision. |
+| `draft-gherkin` | **deprecated** | User | Net-new | Compliance-specific scenario generation. Blocked: the test team isn't ready to consume committed Gherkin scenarios for automation. Fully specified, not a design flaw. User-invoked doubles as a safety net against accidental auto-invocation while blocked. |
+| `review-gherkin` | **deprecated** | User | Net-new | Tester-as-router pattern with ambiguity routing to PRD vs Solution Design. Blocked alongside `draft-gherkin`. |
+| `tdd` | **deprecated** | User | Matt Pocock — use as-is | Red-green-refactor loop, TypeScript examples unchanged. Blocked: this project's unit-test tooling is still ad hoc scripts, not a real test runner — no seam to run the loop against yet. Not a design flaw; re-activate (with Java/JUnit examples) once test infrastructure is in place. |
+| `check-data` | support | Model | Net-new | Verifies customer/transactional data against a ticket, via the Oracle MCP's read-only `execute_query`. |
+| `check-business-rules` | support | Model | Net-new | Verifies expected behaviour against the Document KG and PL/SQL-encoded rules (Oracle `get_package_source`/`get_view_definition`) — business logic in this stack lives in both places. |
+| `check-code-history` | support | Model | Net-new | Verifies actual code behaviour via codegraph (structural only) plus read-only Azure DevOps lookups for historical ticket context (e.g. old "TFS ..." references in code comments). |
+| `ticket-triage` | **agent**, support | Agent | Net-new | Orchestrates `check-data` → `check-business-rules` → `check-code-history` against a pasted ServiceDesk ticket (no ServiceDesk MCP exists) and produces a bug/not-a-bug verdict. No automatic writes anywhere — closing tickets and any follow-up stays manual. |
+| `diagnosing-bugs` | support | Model | Adapted from Pocock's v1.1 `diagnosing-bugs` | Root-cause discipline (build a red-capable feedback loop → reproduce/minimise → hypothesise → instrument → fix → regression test) — the follow-on step once `ticket-triage` returns a `BUG` verdict. Notes the Oracle MCP's read-only constraint on fixture setup and requires human sign-off before adding production instrumentation to a regulatory-exposed component. |
+
+Pocock's original skills are available at https://github.com/mattpocock/skills — MIT licensed (his repo is now versioned; this repo tracks his v1.1.0, July 2026). They assume GitHub, TypeScript, and greenfield projects. The adaptations here replace those assumptions with Jira, Java/Oracle/MuleSoft, and a legacy compliance codebase. Some of his v1.1 skills were deliberately **not** adopted: his tracker-abstraction layer (`setup-matt-pocock-skills`, `docs/agents/issue-tracker.md`) solves multi-tracker portability we don't need (`docs/adr/0001` already commits this repo to Jira as the one real tracker), and his `triage` skill targets externally-reported GitHub issues/PRs with auto-posted comments — a different problem from our `ticket-triage` (ServiceDesk diagnosis, verdict handed to a human, no auto-writes).
 
 ---
 
@@ -62,7 +66,10 @@ Use Case document
       ↓
   Acceptance criteria verified manually (no automated done-signal) → issue closed
       ↓
-  Code review + MR (peer review, PRD as anchor)
+[ code-review ] ← Jira issue (jira_get_issue), git diff since branch point
+  Output: Standards + Spec findings, reported side by side (not merged/reranked)
+      ↓
+  Peer review + MR, PRD as anchor
       ↓
   Merge to integration
 ```
@@ -80,10 +87,14 @@ ServiceDesk ticket (pasted manually — no ServiceDesk MCP)
       └─ [ check-code-history ]   — what does the code do, and why was it built that way?
   Output: verdict (bug / not-a-bug / data issue / needs-BA-input) + evidence
       ↓
+  Verdict = BUG:
+[ diagnosing-bugs ] ← confirmed symptom, codegraph (MCP, optional), Oracle MCP (optional, read-only)
+  Output: root cause + fix + regression test (or a documented no-seam finding)
+      ↓
   Human decides: reply to customer, log a fix (Jira), or no action — nothing is written automatically
 ```
 
-Each of the three skills above is also independently invocable for a support engineer who already suspects a specific cause and only wants one lens checked.
+Each of the three `check-*` skills is also independently invocable for a support engineer who already suspects a specific cause and only wants one lens checked. `diagnosing-bugs` is likewise standalone-invocable whenever a bug is already confirmed and root-causing is the only question — it doesn't require having gone through `ticket-triage` first.
 
 ---
 
@@ -121,9 +132,10 @@ Each of the three skills above is also independently invocable for a support eng
 - Jira issue reference
 - Obsidian vault accessible for note commit
 
-### tdd (Pocock — use as-is)
-- Failing test(s) in context or referenced
-- Code graph accessible for pattern consistency (optional but recommended)
+### code-review
+- A fixed point to diff against (branch, commit, tag) — skill will ask if not supplied
+- Jira issue key the diff implements (skill will ask; Spec axis is skipped if none exists)
+- Git access to the working tree
 
 ### check-data / check-business-rules / check-code-history
 - Ticket description pasted into the session (no ServiceDesk MCP)
@@ -132,7 +144,12 @@ Each of the three skills above is also independently invocable for a support eng
 ### ticket-triage (agent)
 - Same as the three skills above — it orchestrates them and needs the same MCP access as all three combined
 
-### draft-gherkin / review-gherkin (deprecated)
+### diagnosing-bugs
+- A confirmed bug symptom (from `ticket-triage`'s `BUG` verdict, or reported directly)
+- Access to the codebase, test runner, and a dev/staging environment where the bug can be exercised
+- codegraph MCP and Oracle MCP are both optional — the skill degrades to manual investigation without them
+
+### draft-gherkin / review-gherkin / tdd (deprecated)
 - Not currently runnable in this pipeline — see the `Deprecated` note at the top of each SKILL.md
 
 ---
@@ -179,10 +196,12 @@ Following Pocock's guidance on session boundaries:
 - `preflight-check` (agent): fresh conversation per issue. Issue body is self-contained.
 - `annotate-kg`: can follow a HITL preflight result in the same conversation if context permits.
 - `grill-with-docs`: standalone — no fixed predecessor/successor, invoke whenever a plan needs stress-testing.
+- `code-review`: fresh conversation recommended. Inputs are a git ref and a Jira issue key, not prior conversation content.
 - `ticket-triage` (agent) and the three `check-*` skills: standalone per ticket, no session-boundary dependency on anything else in this repo.
+- `diagnosing-bugs`: can follow a `ticket-triage` `BUG` verdict in the same conversation if context permits, or start fresh from a confirmed symptom.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Several skills here (`tdd`, `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`) are adapted from [Matt Pocock's skills](https://github.com/mattpocock/skills), also MIT licensed.
+MIT — see [LICENSE](LICENSE). Several skills here (`tdd`, `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`, `code-review`, `diagnosing-bugs`) are adapted from [Matt Pocock's skills](https://github.com/mattpocock/skills), also MIT licensed.
