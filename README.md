@@ -1,12 +1,13 @@
 # ADLC Skills
 
-Skills (and agents) for the AI-assisted development lifecycle (ADLC). Organized into three tracks — see `CONTEXT.md` at the repo root for the canonical definitions:
+Skills (and agents) for the AI-assisted development lifecycle (ADLC). Organized into four tracks — see `CONTEXT.md` at the repo root for the canonical definitions:
 
-- **`project/`** — the document-driven feature-development pipeline, from Use Case interrogation through KG annotation after implementation. For developers on the feature/project stream.
-- **`support/`** — common, ad-hoc, instant-use work that sits outside the project pipeline (e.g. ticket triage). For developers on the support stream.
+- **`project/`** — the document-driven feature-development pipeline, from Use Case interrogation through KG annotation after implementation. For developers on the feature/project stream, against a consuming codebase.
+- **`support/`** — ad-hoc, instant-use work that sits outside the project pipeline (e.g. ticket triage). For developers on the support stream, against a consuming codebase.
+- **`common/`** — meta-tooling for this library itself (e.g. the discipline for authoring/editing skills here), not run against a consuming codebase.
 - **`deprecated/`** — fully specified but currently unusable due to an external blocker, not a design flaw.
 
-`agents/` mirrors the same three-way split. An **agent** is an autonomous orchestrator that groups several related skills (and the MCP tool access they need) around one recurring job, invoked standalone rather than run step-by-step. A **skill** is a single-purpose step, often interactive.
+`agents/` mirrors only `project/` and `support/` — an agent is a recurring-job orchestrator tied to a consuming codebase's pipeline, and this library has no such recurring job to orchestrate against itself, so there is no `agents/common/`. An **agent** is an autonomous orchestrator that groups several related skills (and the MCP tool access they need) around one recurring job, invoked standalone rather than run step-by-step. A **skill** is a single-purpose step, often interactive.
 
 ---
 
@@ -31,6 +32,7 @@ Skills (and agents) for the AI-assisted development lifecycle (ADLC). Organized 
 | `check-code-history` | support | Model | Net-new | Verifies actual code behaviour via codegraph (structural only) plus read-only Azure DevOps lookups for historical ticket context (e.g. old "TFS ..." references in code comments). |
 | `ticket-triage` | **agent**, support | Agent | Net-new | Orchestrates `check-data` → `check-business-rules` → `check-code-history` against a pasted ServiceDesk ticket (no ServiceDesk MCP exists) and produces a bug/not-a-bug verdict. No automatic writes anywhere — closing tickets and any follow-up stays manual. |
 | `diagnosing-bugs` | support | Model | Adapted from Pocock's v1.1 `diagnosing-bugs` | Root-cause discipline (build a red-capable feedback loop → reproduce/minimise → hypothesise → instrument → fix → regression test) — the follow-on step once `ticket-triage` returns a `BUG` verdict. Notes the Oracle MCP's read-only constraint on fixture setup and requires human sign-off before adding production instrumentation to a regulatory-exposed component. |
+| `writing-great-skills` | **common** | User | Adapted from Pocock's v1.1 `writing-great-skills` (renamed from his pre-v1.1 `write-a-skill`) | Meta-tooling for this repo, not a consuming-codebase skill — the vocabulary and discipline (invocation-mode tradeoffs, information hierarchy, leading words, pruning, failure modes) for authoring or editing any skill/agent here. Kept nearly verbatim; disclosed reference in `GLOSSARY.md`. Consult it, don't reclassify it — it doesn't replace the frontmatter/section-shape rules in `CLAUDE.md`. |
 
 Pocock's original skills are available at https://github.com/mattpocock/skills — MIT licensed (his repo is now versioned; this repo tracks his v1.1.0, July 2026). They assume GitHub, TypeScript, and greenfield projects. The adaptations here replace those assumptions with Jira, Java/Oracle/MuleSoft, and a legacy compliance codebase. Some of his v1.1 skills were deliberately **not** adopted: his tracker-abstraction layer (`setup-matt-pocock-skills`, `docs/agents/issue-tracker.md`) solves multi-tracker portability we don't need (`docs/adr/0001` already commits this repo to Jira as the one real tracker), and his `triage` skill targets externally-reported GitHub issues/PRs with auto-posted comments — a different problem from our `ticket-triage` (ServiceDesk diagnosis, verdict handed to a human, no auto-writes).
 
@@ -96,6 +98,10 @@ ServiceDesk ticket (pasted manually — no ServiceDesk MCP)
 
 Each of the three `check-*` skills is also independently invocable for a support engineer who already suspects a specific cause and only wants one lens checked. `diagnosing-bugs` is likewise standalone-invocable whenever a bug is already confirmed and root-causing is the only question — it doesn't require having gone through `ticket-triage` first.
 
+## Common track
+
+Has no workflow map — it isn't run against a consuming codebase, so it doesn't chain from or into anything in the project/support pipelines. `writing-great-skills` is invoked standalone, whenever this repo's own `SKILL.md`/`AGENT.md` files are being drafted, split, merged, or reviewed for bloat.
+
 ---
 
 ## Prerequisites per skill
@@ -152,6 +158,9 @@ Each of the three `check-*` skills is also independently invocable for a support
 ### draft-gherkin / review-gherkin / tdd (deprecated)
 - Not currently runnable in this pipeline — see the `Deprecated` note at the top of each SKILL.md
 
+### writing-great-skills (common)
+- None — pure reference, invoked by typing its name while editing a skill/agent file in this repo
+
 ---
 
 ## Output folder structure
@@ -199,9 +208,10 @@ Following Pocock's guidance on session boundaries:
 - `code-review`: fresh conversation recommended. Inputs are a git ref and a Jira issue key, not prior conversation content.
 - `ticket-triage` (agent) and the three `check-*` skills: standalone per ticket, no session-boundary dependency on anything else in this repo.
 - `diagnosing-bugs`: can follow a `ticket-triage` `BUG` verdict in the same conversation if context permits, or start fresh from a confirmed symptom.
+- `writing-great-skills`: standalone — invoke whenever authoring or editing a skill/agent in this repo, no session-boundary dependency on anything else.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Several skills here (`tdd`, `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`, `code-review`, `diagnosing-bugs`) are adapted from [Matt Pocock's skills](https://github.com/mattpocock/skills), also MIT licensed.
+MIT — see [LICENSE](LICENSE). Several skills here (`tdd`, `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`, `code-review`, `diagnosing-bugs`, `writing-great-skills`) are adapted from [Matt Pocock's skills](https://github.com/mattpocock/skills), also MIT licensed.

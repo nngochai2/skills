@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working in this
 
 A skill (and agent) definition library for an AI-assisted development lifecycle (ADLC). Skills and agents are prompt instruction files — not runnable code. There are no build, test, or lint commands. All work here is editing Markdown files.
 
-The library is organized into three tracks — see `CONTEXT.md` for the canonical definitions:
-- **`project`** — the document-driven feature-development pipeline (UC → PRD → design → tests → implementation)
-- **`support`** — common, ad-hoc, instant-use work outside the pipeline (e.g. ticket triage)
+The library is organized into four tracks — see `CONTEXT.md` for the canonical definitions:
+- **`project`** — the document-driven feature-development pipeline (UC → PRD → design → tests → implementation), run against a consuming codebase
+- **`support`** — ad-hoc, instant-use work outside the pipeline (e.g. ticket triage), run against a consuming codebase
+- **`common`** — meta-tooling for this library itself (e.g. the discipline for authoring/editing skills here), not run against a consuming codebase
 - **`deprecated`** — fully specified but currently unusable due to an external blocker, not a design flaw
 
-Both `skills/` and `agents/` are split into these same three tracks.
+`skills/` is split into all four tracks. `agents/` only mirrors `project` and `support` — an agent is a recurring-job orchestrator tied to a consuming codebase's pipeline, and this library has no such recurring job to orchestrate against itself, so there is no `agents/common/`.
 
 ## Skill vs agent
 
@@ -40,7 +41,7 @@ The `description` field is loaded by the Claude Code harness to decide when to i
 
 Every `SKILL.md` is either **user-invoked** or **model-invoked** — the axis is who can reach it, following Pocock's v1.1 `.agents/invocation.md` convention:
 
-- **User-invoked** — add `disable-model-invocation: true` to the frontmatter. Reachable only by a human typing the skill's name. Use this for skills that sit at a deliberate pipeline gate and must never fire opportunistically just because a description phrase matched: `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`, `annotate-kg`, and all three deprecated skills (`draft-gherkin`, `review-gherkin`, `tdd` — the field also acts as a safety net against accidental auto-invocation of blocked skills).
+- **User-invoked** — add `disable-model-invocation: true` to the frontmatter. Reachable only by a human typing the skill's name. Use this for skills that sit at a deliberate pipeline gate and must never fire opportunistically just because a description phrase matched: `grill-me`, `grill-with-docs`, `to-prd`, `decompose-issues`, `annotate-kg`, and all three deprecated skills (`draft-gherkin`, `review-gherkin`, `tdd` — the field also acts as a safety net against accidental auto-invocation of blocked skills). The same field also fits skills a human deliberately reaches for outside any pipeline — `writing-great-skills` (`common` track) should never fire just because a task involves editing a `SKILL.md`.
 - **Model-invoked** — omit the field. Reachable by the model autonomously, or by a human typing the name. Use this for skills that hold a reusable investigative or review discipline the agent should reach for the moment a task fits, without waiting to be asked: `code-review`, `check-data`, `check-business-rules`, `check-code-history`, `diagnosing-bugs`.
 
 The test: could the model usefully reach for this on its own, mid-task? If yes, model-invoked. If the skill's value depends on a human deliberately choosing to start it (a tech-lead-gated DAG review, a Developer providing shape constraints, a HITL decision capture), user-invoked.
